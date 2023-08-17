@@ -6,17 +6,18 @@ public class PriceVariationGenerator {
 
 	public static void main(String[] args) {
         double[] priceVariations = generatePriceVariations(100, 5.0);
-        for (int i = 0; i < priceVariations.length; i++) {
+		for (int i = 0; i < priceVariations.length; i++) {
             System.out.printf("Día %d: %.2f%%\n", (i+1), priceVariations[i]);
         }
-        //System.out.println("\n\t\t FUERZA BRUTA"); 
-        //double sumaBruta = fuerzaBruta(priceVariations);
-        System.out.println("\t\t KADANE");
+        System.out.println("\n\t\t FUERZA BRUTA"); 
+        double sumaBruta = fuerzaBruta(priceVariations);
+        
+        System.out.println("\n\t\t KADANE");
         double kadane = kadane(priceVariations);
     }
 	
 	public static double kadane(double[] priceVariations) {
-		double[] segundo = Arrays.copyOf(priceVariations, 100);
+		double[] segundo = Arrays.copyOf(priceVariations, priceVariations.length);
 		double maxEndingHere;
 		double maxSoFar = segundo[0];
 		int startIdx;
@@ -44,7 +45,11 @@ public class PriceVariationGenerator {
 	                endIdx = i;
 	            }
 	        }
-	        System.out.printf("\nIntervalo #%d de Mayor Rendimiento: Día " + startIdx + " a Día " + endIdx + " con una ganancia acumulada de %.2f%%", vez,  maxSoFar);
+	        if(maxSoFar <= 0) {
+	        	break;
+	        }
+	        int inicio = startIdx++, fin = endIdx++;
+	        System.out.printf("\nIntervalo #%d de Mayor Rendimiento: Día " + inicio + " a Día " + fin + " con una ganancia acumulada de %.2f%%", vez,  maxSoFar);
 			for(int k = startIdx; k < endIdx; k++) {
 				segundo[k] = 0;
 			}
@@ -53,32 +58,34 @@ public class PriceVariationGenerator {
 		return maxSoFar;
 	}
 	
-	
 	public static double fuerzaBruta(double[] priceVariations) {
-		double[] segundo = Arrays.copyOf(priceVariations, 100);
+		double [] nuevo = Arrays.copyOf(priceVariations, priceVariations.length);
 		double maxSum = Double.NEGATIVE_INFINITY;
         int startIndex;
         int endIndex;
         
         for(int vez = 1; vez < 6; vez++) {
         	maxSum = Double.NEGATIVE_INFINITY;
-        	startIndex = 0;
-            endIndex = 0;
-        	for (int i = 0; i < segundo.length; i++) {
-                for (int j = i; j < segundo.length; j++) {
-                	double sum = 0;
-                    sum += segundo[j];
+            startIndex = -1;
+            endIndex = -1;
+        	for (int i = 0; i < nuevo.length; i++) {
+                double sum = 0;
+                for (int j = i; j < nuevo.length; j++) {
+                    sum += nuevo[j];
                     if (sum > maxSum) {
                         maxSum = sum;
-                        startIndex = i ;
+                        startIndex = i;
                         endIndex = j;
                     }
                 }
             }
-        	System.out.printf("\nIntervalo #%d de Mayor Rendimiento: Día " + startIndex + 1 + " a Día " + endIndex + " con una ganancia acumulada de %.2f%%", vez,  maxSum);
-			for(int k = startIndex; k <= endIndex; k++) {
-				segundo[k] = 0;
-			}
+        	if(maxSum <= 0) {
+	        	break;
+	        }
+        	System.out.printf("\nIntervalo #%d de Mayor Rendimiento: Día " + startIndex + " a Día " + endIndex + " con una ganancia acumulada de %.2f%%", vez,  maxSum);
+            for(int x = startIndex; x < endIndex; x++) {
+            	nuevo[x] = 0;
+            }
         }
         return maxSum;
 	}
